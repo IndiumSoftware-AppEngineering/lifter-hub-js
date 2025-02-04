@@ -1,12 +1,25 @@
-import { getPrompt } from "./db";
+import { configureDatabase, fetchPrompt, createPrompt, updatePrompt, deletePrompt, DBConfig } from "./db";
 
 class LifterHub {
     async pull(promptName: string): Promise<string | null> {
-        return await getPrompt(promptName);
+        return await fetchPrompt(promptName);
+    }
+
+    async create(name: string, content: string): Promise<boolean> {
+        return await createPrompt(name, content);
+    }
+
+    async update(name: string, newContent: string): Promise<boolean> {
+        return await updatePrompt(name, newContent);
+    }
+
+    async delete(name: string): Promise<boolean> {
+        return await deletePrompt(name);
     }
 }
 
-// Export singleton instance
-export function init(): LifterHub {
+// Singleton instance
+export function init(dbConfig: DBConfig): LifterHub {
+    configureDatabase(dbConfig);
     return new LifterHub();
 }
