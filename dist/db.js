@@ -12,44 +12,169 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPrompt = getPrompt;
+exports.configureDatabase = configureDatabase;
+exports.fetchPrompt = fetchPrompt;
+exports.createPrompt = createPrompt;
+exports.updatePrompt = updatePrompt;
+exports.deletePrompt = deletePrompt;
+exports.initializeDatabase = initializeDatabase;
 const pg_1 = require("pg");
 const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-const DB_TYPE = process.env.DB_TYPE || "sqlite";
 let db;
-if (DB_TYPE === "postgres") {
-    db = new pg_1.Pool({
-        user: process.env.POSTGRES_USER,
-        host: process.env.POSTGRES_HOST,
-        database: process.env.POSTGRES_DB,
-        password: process.env.POSTGRES_PASSWORD,
-        port: Number(process.env.POSTGRES_PORT) || 5432,
+let dbType;
+function configureDatabase(config) {
+    return __awaiter(this, void 0, void 0, function* () {
+        dbType = config.type;
+        if (dbType === "postgres" && config.postgres) {
+            db = new pg_1.Pool({
+                user: config.postgres.user,
+                host: config.postgres.host,
+                database: config.postgres.database,
+                password: config.postgres.password,
+                port: config.postgres.port,
+            });
+        }
+        else if (dbType === "sqlite" && config.sqlite) {
+            db = new better_sqlite3_1.default(config.sqlite.path || "./prompts.db");
+        }
+        else {
+            throw new Error("Invalid database configuration");
+        }
+        yield initializeDatabase();
     });
 }
-else {
-    db = new better_sqlite3_1.default(process.env.SQLITE_DB_PATH || "./prompts.db");
-}
-/**
- * Fetch prompt content from the database.
- */
-function getPrompt(promptName) {
+function fetchPrompt(promptType) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            if (DB_TYPE === "postgres") {
-                const res = yield db.query("SELECT system_message, human_message FROM prompt_configurations WHERE type = $1", [promptName]);
-                return res.rows.length ? res.rows[0].content : null;
+            let row;
+            if (dbType === "postgres") {
+                const result = yield db.query("SELECT * FROM prompt_configurations WHERE prompt_type = $1", [promptType]);
+                row = result.rows[0];
             }
             else {
-                const stmt = db.prepare("SELECT system_message,human_message FROM prompt_configurations WHERE type = ?");
-                const row = stmt.get(promptName);
-                return row;
+                const stmt = db.prepare("SELECT * FROM prompt_configurations WHERE prompt_type = ?");
+                row = stmt.get(promptType);
             }
+            if (!row)
+                return null;
+            return {
+                promptType: row.prompt_type,
+                description: row.description,
+                systemMessage: row.system_message,
+                humanMessage: row.human_message,
+                structuredOutput: row.structured_output,
+                outputFormat: row.output_format,
+            };
         }
         catch (error) {
-            console.error("Error fetching prompt:", error);
+            console.error("Error fetching prompt configuration:", error);
             return null;
+        }
+    });
+}
+function createPrompt(config) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var _a;
+        try {
+            if (dbType === "postgres") {
+                yield db.query(`INSERT INTO prompt_configurations 
+                 (prompt_type, description, system_message, human_message, structured_output, output_format) 
+                 VALUES ($1, $2, $3, $4, $5, $6)`, [
+                    config.promptType,
+                    config.description,
+                    config.systemMessage,
+                    config.humanMessage,
+                    (_a = config.structuredOutput) !== null && _a !== void 0 ? _a : false,
+                    config.outputFormat || null,
+                ]);
+            }
+            else {
+                const stmt = db.prepare(`INSERT INTO prompt_configurations 
+                 (prompt_type, description, system_message, human_message, structured_output, output_format) 
+                 VALUES (?, ?, ?, ?, ?, ?)`);
+                stmt.run(config.promptType, config.description, config.systemMessage, config.humanMessage, config.structuredOutput ? 1 : 0, config.outputFormat || null);
+            }
+            return true;
+        }
+        catch (error) {
+            console.error("Error creating prompt configuration:", error);
+            return false;
+        }
+    });
+}
+function updatePrompt(promptType, newDescription) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (dbType === "postgres") {
+                yield db.query(`UPDATE prompt_configurations 
+                 SET description = $1, updated_at = CURRENT_TIMESTAMP 
+                 WHERE prompt_type = $2`, [newDescription, promptType]);
+            }
+            else {
+                const stmt = db.prepare(`UPDATE prompt_configurations 
+                 SET description = ?, updated_at = CURRENT_TIMESTAMP 
+                 WHERE prompt_type = ?`);
+                stmt.run(newDescription, promptType);
+            }
+            return true;
+        }
+        catch (error) {
+            console.error("Error updating prompt configuration:", error);
+            return false;
+        }
+    });
+}
+function deletePrompt(promptType) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (dbType === "postgres") {
+                yield db.query("DELETE FROM prompt_configurations WHERE prompt_type = $1", [promptType]);
+            }
+            else {
+                const stmt = db.prepare("DELETE FROM prompt_configurations WHERE prompt_type = ?");
+                stmt.run(promptType);
+            }
+            return true;
+        }
+        catch (error) {
+            console.error("Error deleting prompt configuration:", error);
+            return false;
+        }
+    });
+}
+function initializeDatabase() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (dbType === "postgres") {
+            yield db.query(`
+            CREATE TABLE IF NOT EXISTS prompt_configurations (
+                id BIGINT GENERATED BY DEFAULT AS IDENTITY (INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1 NO CYCLE) PRIMARY KEY,
+                prompt_type VARCHAR(255) NOT NULL,
+                description TEXT NOT NULL,
+                system_message TEXT NOT NULL,
+                human_message TEXT NOT NULL,
+                structured_output BOOLEAN DEFAULT FALSE,
+                output_format TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+        }
+        else {
+            db.exec(`
+            CREATE TABLE IF NOT EXISTS prompt_configurations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                prompt_type TEXT NOT NULL,
+                description TEXT NOT NULL,
+                system_message TEXT NOT NULL,
+                human_message TEXT NOT NULL,
+                structured_output BOOLEAN DEFAULT 0,
+                output_format TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
         }
     });
 }

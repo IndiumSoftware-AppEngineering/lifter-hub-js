@@ -12,13 +12,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.init = init;
 const db_1 = require("./db");
 class LifterHub {
-    pull(promptName) {
+    pull(promptType) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield (0, db_1.getPrompt)(promptName);
+            return yield (0, db_1.fetchPrompt)(promptType);
+        });
+    }
+    create(config) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield (0, db_1.createPrompt)(config);
+        });
+    }
+    update(promptType, newDescription) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield (0, db_1.updatePrompt)(promptType, newDescription);
+        });
+    }
+    delete(promptType) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield (0, db_1.deletePrompt)(promptType);
         });
     }
 }
-// Export singleton instance
-function init() {
+// Singleton instance
+function init(dbConfig) {
+    (0, db_1.configureDatabase)(dbConfig);
     return new LifterHub();
 }

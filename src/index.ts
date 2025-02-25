@@ -1,20 +1,20 @@
-import { configureDatabase, fetchPrompt, createPrompt, updatePrompt, deletePrompt, DBConfig } from "./db";
+import { configureDatabase, PromptConfiguration, fetchPrompt, createPrompt, updatePrompt, deletePrompt, DBConfig } from "./db";
 
 class LifterHub {
-    async pull(promptName: string): Promise<string | null> {
-        return await fetchPrompt(promptName);
+    async pull(promptType: string): Promise<PromptConfiguration | null> {
+        return await fetchPrompt(promptType);
     }
 
-    async create(name: string, content: string): Promise<boolean> {
-        return await createPrompt(name, content);
+    async create(config: PromptConfiguration): Promise<boolean> {
+        return await createPrompt(config);
     }
 
-    async update(name: string, newContent: string): Promise<boolean> {
-        return await updatePrompt(name, newContent);
+    async update(promptType: string, newDescription: string): Promise<boolean> {
+        return await updatePrompt(promptType, newDescription);
     }
 
-    async delete(name: string): Promise<boolean> {
-        return await deletePrompt(name);
+    async delete(promptType: string): Promise<boolean> {
+        return await deletePrompt(promptType);
     }
 }
 
