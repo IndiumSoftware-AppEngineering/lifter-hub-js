@@ -1,3 +1,4 @@
+export type { DBConfig } from "./db";
 import { PromptConfiguration, DBConfig } from "./db";
 declare class LifterHub {
     pull(promptType: string): Promise<PromptConfiguration | null>;
@@ -6,4 +7,3 @@ declare class LifterHub {
     delete(promptType: string): Promise<boolean>;
 }
 export declare function init(dbConfig: DBConfig): LifterHub;
-export {};

@@ -1,3 +1,4 @@
+export type { DBConfig } from "./db";
 import { configureDatabase, PromptConfiguration, fetchPrompt, createPrompt, updatePrompt, deletePrompt, DBConfig } from "./db";
 
 class LifterHub {
