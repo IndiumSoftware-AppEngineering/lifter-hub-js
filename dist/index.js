@@ -32,9 +32,9 @@ class LifterHub {
             return yield (0, db_1.updatePrompt)(promptType, newDescription);
         });
     }
-    delete(promptType) {
+    delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield (0, db_1.deletePrompt)(promptType);
+            return yield (0, db_1.deletePrompt)(id);
         });
     }
     deleteAll() {

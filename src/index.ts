@@ -18,8 +18,8 @@ class LifterHub {
         return await updatePrompt(promptType, newDescription);
     }
 
-    async delete(promptType: string): Promise<boolean> {
-        return await deletePrompt(promptType);
+    async delete(id: number): Promise<boolean> {
+        return await deletePrompt(id);
     }
 
     async deleteAll(): Promise<boolean> {

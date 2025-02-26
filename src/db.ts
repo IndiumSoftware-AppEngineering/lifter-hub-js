@@ -19,6 +19,7 @@ export type DBConfig = {
 };
 
 export type PromptConfiguration = {
+    id?: number;
     prompt_type: string;
     description: string;
     system_message: string;
@@ -65,6 +66,7 @@ export async function fetchPrompt(promptType: string): Promise<PromptConfigurati
         if (!row) return null;
 
         return {
+            id: row.id,
             prompt_type: row.prompt_type,
             description: row.description,
             system_message: row.system_message,
@@ -166,20 +168,21 @@ export async function updatePrompt(promptType: string, newDescription: string): 
     }
 }
 
-export async function deletePrompt(promptType: string): Promise<boolean> {
+export async function deletePrompt(id: number): Promise<boolean> {
     try {
-        if (dbType === "postgres") {
-            await db.query("DELETE FROM prompt_configurations WHERE prompt_type = $1", [promptType]);
-        } else {
-            const stmt = db.prepare("DELETE FROM prompt_configurations WHERE prompt_type = ?");
-            stmt.run(promptType);
-        }
-        return true;
+      if (dbType === "postgres") {
+        await db.query("DELETE FROM prompt_configurations WHERE id = $1", [id]);
+      } else {
+        const stmt = db.prepare("DELETE FROM prompt_configurations WHERE id = ?");
+        stmt.run(id);
+      }
+      return true;
     } catch (error) {
-        console.error("Error deleting prompt configuration:", error);
-        return false;
+      console.error("Error deleting prompt configuration:", error);
+      return false;
     }
-}
+  }
+  
 
 export async function deleteAllPrompt(): Promise<boolean> {
     try {

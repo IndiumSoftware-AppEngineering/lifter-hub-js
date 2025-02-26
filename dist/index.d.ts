@@ -5,7 +5,7 @@ declare class LifterHub {
     pullAll(): Promise<PromptConfiguration[]>;
     create(config: PromptConfiguration): Promise<boolean>;
     update(promptType: string, newDescription: string): Promise<boolean>;
-    delete(promptType: string): Promise<boolean>;
+    delete(id: number): Promise<boolean>;
     deleteAll(): Promise<boolean>;
 }
 export declare function init(dbConfig: DBConfig): LifterHub;

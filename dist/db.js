@@ -62,6 +62,7 @@ function fetchPrompt(promptType) {
             if (!row)
                 return null;
             return {
+                id: row.id,
                 prompt_type: row.prompt_type,
                 description: row.description,
                 system_message: row.system_message,
@@ -155,15 +156,15 @@ function updatePrompt(promptType, newDescription) {
         }
     });
 }
-function deletePrompt(promptType) {
+function deletePrompt(id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (dbType === "postgres") {
-                yield db.query("DELETE FROM prompt_configurations WHERE prompt_type = $1", [promptType]);
+                yield db.query("DELETE FROM prompt_configurations WHERE id = $1", [id]);
             }
             else {
-                const stmt = db.prepare("DELETE FROM prompt_configurations WHERE prompt_type = ?");
-                stmt.run(promptType);
+                const stmt = db.prepare("DELETE FROM prompt_configurations WHERE id = ?");
+                stmt.run(id);
             }
             return true;
         }
