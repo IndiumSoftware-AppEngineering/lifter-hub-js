@@ -93,6 +93,7 @@ export async function fetchAllPrompt(): Promise<PromptConfiguration[]> {
             rows = stmt.all();
         }
         return rows.map((row: any) => ({
+            id: row.id,
             prompt_type: row.prompt_type,
             description: row.description,
             system_message: row.system_message,

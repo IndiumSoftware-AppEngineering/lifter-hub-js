@@ -90,6 +90,7 @@ function fetchAllPrompt() {
                 rows = stmt.all();
             }
             return rows.map((row) => ({
+                id: row.id,
                 prompt_type: row.prompt_type,
                 description: row.description,
                 system_message: row.system_message,
