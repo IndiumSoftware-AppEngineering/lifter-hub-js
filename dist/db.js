@@ -62,12 +62,12 @@ function fetchPrompt(promptType) {
             if (!row)
                 return null;
             return {
-                promptType: row.prompt_type,
+                prompt_type: row.prompt_type,
                 description: row.description,
-                systemMessage: row.system_message,
-                humanMessage: row.human_message,
-                structuredOutput: row.structured_output,
-                outputFormat: row.output_format,
+                system_message: row.system_message,
+                human_message: row.human_message,
+                structured_output: row.structured_output,
+                output_format: row.output_format,
             };
         }
         catch (error) {
@@ -89,12 +89,12 @@ function fetchAllPrompt() {
                 rows = stmt.all();
             }
             return rows.map((row) => ({
-                promptType: row.prompt_type,
+                prompt_type: row.prompt_type,
                 description: row.description,
-                systemMessage: row.system_message,
-                humanMessage: row.human_message,
-                structuredOutput: row.structured_output,
-                outputFormat: row.output_format,
+                system_message: row.system_message,
+                human_message: row.human_message,
+                structured_output: row.structured_output,
+                output_format: row.output_format,
             }));
         }
         catch (error) {
@@ -111,19 +111,19 @@ function createPrompt(config) {
                 yield db.query(`INSERT INTO prompt_configurations 
                  (prompt_type, description, system_message, human_message, structured_output, output_format) 
                  VALUES ($1, $2, $3, $4, $5, $6)`, [
-                    config.promptType,
+                    config.prompt_type,
                     config.description,
-                    config.systemMessage,
-                    config.humanMessage,
-                    (_a = config.structuredOutput) !== null && _a !== void 0 ? _a : false,
-                    config.outputFormat || null,
+                    config.system_message,
+                    config.human_message,
+                    (_a = config.structured_output) !== null && _a !== void 0 ? _a : false,
+                    config.output_format || null,
                 ]);
             }
             else {
                 const stmt = db.prepare(`INSERT INTO prompt_configurations 
                  (prompt_type, description, system_message, human_message, structured_output, output_format) 
                  VALUES (?, ?, ?, ?, ?, ?)`);
-                stmt.run(config.promptType, config.description, config.systemMessage, config.humanMessage, config.structuredOutput ? 1 : 0, config.outputFormat || null);
+                stmt.run(config.prompt_type, config.description, config.system_message, config.human_message, config.structured_output ? 1 : 0, config.output_format || null);
             }
             return true;
         }
