@@ -1,9 +1,13 @@
 export type { DBConfig } from "./db";
-import { configureDatabase, PromptConfiguration, fetchPrompt, createPrompt, updatePrompt, deletePrompt, DBConfig } from "./db";
+import { configureDatabase, PromptConfiguration, fetchPrompt, fetchAllPrompt, createPrompt, updatePrompt, deletePrompt, deleteAllPrompt, DBConfig } from "./db";
 
 class LifterHub {
     async pull(promptType: string): Promise<PromptConfiguration | null> {
         return await fetchPrompt(promptType);
+    }
+
+    async pullAll(): Promise<PromptConfiguration[]> {
+        return await fetchAllPrompt();
     }
 
     async create(config: PromptConfiguration): Promise<boolean> {
@@ -17,6 +21,11 @@ class LifterHub {
     async delete(promptType: string): Promise<boolean> {
         return await deletePrompt(promptType);
     }
+
+    async deleteAll(): Promise<boolean> {
+        return await deleteAllPrompt();
+    }
+
 }
 
 // Singleton instance

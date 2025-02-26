@@ -17,6 +17,11 @@ class LifterHub {
             return yield (0, db_1.fetchPrompt)(promptType);
         });
     }
+    pullAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield (0, db_1.fetchAllPrompt)();
+        });
+    }
     create(config) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield (0, db_1.createPrompt)(config);
@@ -30,6 +35,11 @@ class LifterHub {
     delete(promptType) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield (0, db_1.deletePrompt)(promptType);
+        });
+    }
+    deleteAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield (0, db_1.deleteAllPrompt)();
         });
     }
 }

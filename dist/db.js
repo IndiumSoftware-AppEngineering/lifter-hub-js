@@ -14,9 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.configureDatabase = configureDatabase;
 exports.fetchPrompt = fetchPrompt;
+exports.fetchAllPrompt = fetchAllPrompt;
 exports.createPrompt = createPrompt;
 exports.updatePrompt = updatePrompt;
 exports.deletePrompt = deletePrompt;
+exports.deleteAllPrompt = deleteAllPrompt;
 exports.initializeDatabase = initializeDatabase;
 const pg_1 = require("pg");
 const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
@@ -71,6 +73,33 @@ function fetchPrompt(promptType) {
         catch (error) {
             console.error("Error fetching prompt configuration:", error);
             return null;
+        }
+    });
+}
+function fetchAllPrompt() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let rows;
+            if (dbType === "postgres") {
+                const result = yield db.query("SELECT * FROM prompt_configurations ORDER BY created_at DESC;");
+                rows = result.rows;
+            }
+            else {
+                const stmt = db.prepare("SELECT * FROM prompt_configurations ORDER BY created_at DESC;");
+                rows = stmt.all();
+            }
+            return rows.map((row) => ({
+                promptType: row.prompt_type,
+                description: row.description,
+                systemMessage: row.system_message,
+                humanMessage: row.human_message,
+                structuredOutput: row.structured_output,
+                outputFormat: row.output_format,
+            }));
+        }
+        catch (error) {
+            console.error("Error fetching all prompt configurations:", error);
+            return [];
         }
     });
 }
@@ -135,6 +164,23 @@ function deletePrompt(promptType) {
             else {
                 const stmt = db.prepare("DELETE FROM prompt_configurations WHERE prompt_type = ?");
                 stmt.run(promptType);
+            }
+            return true;
+        }
+        catch (error) {
+            console.error("Error deleting prompt configuration:", error);
+            return false;
+        }
+    });
+}
+function deleteAllPrompt() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (dbType === "postgres") {
+                yield db.query("DELETE FROM prompt_configurations");
+            }
+            else {
+                db.exec("DELETE FROM prompt_configurations");
             }
             return true;
         }

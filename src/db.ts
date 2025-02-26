@@ -78,6 +78,32 @@ export async function fetchPrompt(promptType: string): Promise<PromptConfigurati
     }
 }
 
+export async function fetchAllPrompt(): Promise<PromptConfiguration[]> {
+    try {
+        let rows;
+        if (dbType === "postgres") {
+            const result = await db.query(
+                "SELECT * FROM prompt_configurations ORDER BY created_at DESC;",
+            );
+            rows = result.rows;
+        } else {
+            const stmt = db.prepare("SELECT * FROM prompt_configurations ORDER BY created_at DESC;");
+            rows = stmt.all();
+        }
+        return rows.map((row: any) => ({
+            promptType: row.prompt_type,
+            description: row.description,
+            systemMessage: row.system_message,
+            humanMessage: row.human_message,
+            structuredOutput: row.structured_output,
+            outputFormat: row.output_format,
+          }));
+        } catch (error) {
+          console.error("Error fetching all prompt configurations:", error);
+          return [];
+        }
+      }
+
 export async function createPrompt(config: PromptConfiguration): Promise<boolean> {
     try {
         if (dbType === "postgres") {
@@ -147,6 +173,20 @@ export async function deletePrompt(promptType: string): Promise<boolean> {
         } else {
             const stmt = db.prepare("DELETE FROM prompt_configurations WHERE prompt_type = ?");
             stmt.run(promptType);
+        }
+        return true;
+    } catch (error) {
+        console.error("Error deleting prompt configuration:", error);
+        return false;
+    }
+}
+
+export async function deleteAllPrompt(): Promise<boolean> {
+    try {
+        if (dbType === "postgres") {
+            await db.query("DELETE FROM prompt_configurations");
+        } else {
+            db.exec("DELETE FROM prompt_configurations");
         }
         return true;
     } catch (error) {
