@@ -32,6 +32,12 @@ class LifterHub {
             return yield (0, db_1.updatePrompt)(promptType, newDescription);
         });
     }
+    updateFull(config) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield (0, db_1.updateFullPrompt)(config);
+            return result !== null;
+        });
+    }
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield (0, db_1.deletePrompt)(id);

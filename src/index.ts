@@ -1,5 +1,5 @@
 export type { DBConfig } from "./db";
-import { configureDatabase, PromptConfiguration, fetchPrompt, fetchAllPrompt, createPrompt, updatePrompt, deletePrompt, deleteAllPrompt, DBConfig } from "./db";
+import { configureDatabase, PromptConfiguration, fetchPrompt, fetchAllPrompt, createPrompt, updatePrompt, updateFullPrompt, deletePrompt, deleteAllPrompt, DBConfig } from "./db";
 
 class LifterHub {
     async pull(promptType: string): Promise<PromptConfiguration | null> {
@@ -16,6 +16,11 @@ class LifterHub {
 
     async update(promptType: string, newDescription: string): Promise<boolean> {
         return await updatePrompt(promptType, newDescription);
+    }
+
+    async updateFull(config: PromptConfiguration): Promise<boolean> {
+        const result = await updateFullPrompt(config);
+        return result !== null;
     }
 
     async delete(id: number): Promise<boolean> {

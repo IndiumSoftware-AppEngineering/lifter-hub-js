@@ -169,6 +169,88 @@ export async function updatePrompt(promptType: string, newDescription: string): 
     }
 }
 
+export async function updateFullPrompt(update: PromptConfiguration): Promise<PromptConfiguration | null> {
+    try {
+      if (dbType === "postgres") {
+        const result = await db.query(
+          `UPDATE prompt_configurations
+           SET
+             prompt_type = $1,
+             description = $2,
+             system_message = $3,
+             human_message = $4,
+             structured_output = $5,
+             output_format = $6,
+             updated_at = CURRENT_TIMESTAMP
+           WHERE id = $7
+           RETURNING *;`,
+          [
+            update.prompt_type,
+            update.description,
+            update.system_message,
+            update.human_message,
+            update.structured_output,
+            update.output_format || null,
+            update.id,
+          ]
+        );
+        if (result.rows.length > 0) {
+          return {
+            id: result.rows[0].id,
+            prompt_type: result.rows[0].prompt_type,
+            description: result.rows[0].description,
+            system_message: result.rows[0].system_message,
+            human_message: result.rows[0].human_message,
+            structured_output: result.rows[0].structured_output,
+            output_format: result.rows[0].output_format,
+          };
+        }
+        return null;
+      } else {
+        // SQLite version (SQLite doesn't support RETURNING, so we update then fetch)
+        const stmt = db.prepare(
+          `UPDATE prompt_configurations
+           SET
+             prompt_type = ?,
+             description = ?,
+             system_message = ?,
+             human_message = ?,
+             structured_output = ?,
+             output_format = ?,
+             updated_at = CURRENT_TIMESTAMP
+           WHERE id = ?`
+        );
+        stmt.run(
+          update.prompt_type,
+          update.description,
+          update.system_message,
+          update.human_message,
+          update.structured_output ? 1 : 0,
+          update.output_format || null,
+          update.id
+        );
+        const fetchStmt = db.prepare("SELECT * FROM prompt_configurations WHERE id = ?");
+        const row = fetchStmt.get(update.id);
+        if (row) {
+          return {
+            id: row.id,
+            prompt_type: row.prompt_type,
+            description: row.description,
+            system_message: row.system_message,
+            human_message: row.human_message,
+            structured_output: row.structured_output,
+            output_format: row.output_format,
+          };
+        }
+        return null;
+      }
+    } catch (error) {
+      console.error("Error updating prompt configuration:", error);
+      return null;
+    }
+}
+  
+
 export async function deletePrompt(id: number): Promise<boolean> {
     try {
       if (dbType === "postgres") {
@@ -182,7 +264,7 @@ export async function deletePrompt(id: number): Promise<boolean> {
       console.error("Error deleting prompt configuration:", error);
       return false;
     }
-  }
+} 
   
 
 export async function deleteAllPrompt(): Promise<boolean> {

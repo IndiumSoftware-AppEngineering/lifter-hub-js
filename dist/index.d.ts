@@ -5,6 +5,7 @@ declare class LifterHub {
     pullAll(): Promise<PromptConfiguration[]>;
     create(config: PromptConfiguration): Promise<boolean>;
     update(promptType: string, newDescription: string): Promise<boolean>;
+    updateFull(config: PromptConfiguration): Promise<boolean>;
     delete(id: number): Promise<boolean>;
     deleteAll(): Promise<boolean>;
 }
