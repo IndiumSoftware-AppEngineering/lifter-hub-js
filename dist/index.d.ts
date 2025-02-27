@@ -1,7 +1,7 @@
 export type { DBConfig } from "./db";
 import { PromptConfiguration, DBConfig } from "./db";
 declare class LifterHub {
-    pull(promptType: string): Promise<PromptConfiguration | null>;
+    pull(id: number): Promise<PromptConfiguration | null>;
     pullAll(): Promise<PromptConfiguration[]>;
     create(config: PromptConfiguration): Promise<boolean>;
     update(promptType: string, newDescription: string): Promise<boolean>;

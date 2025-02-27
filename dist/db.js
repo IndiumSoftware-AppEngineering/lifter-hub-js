@@ -48,17 +48,17 @@ function configureDatabase(config) {
         yield initializeDatabase();
     });
 }
-function fetchPrompt(promptType) {
+function fetchPrompt(id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let row;
             if (dbType === "postgres") {
-                const result = yield db.query("SELECT * FROM prompt_configurations WHERE prompt_type = $1", [promptType]);
+                const result = yield db.query("SELECT * FROM prompt_configurations WHERE id = $1", [id]);
                 row = result.rows[0];
             }
             else {
-                const stmt = db.prepare("SELECT * FROM prompt_configurations WHERE prompt_type = ?");
-                row = stmt.get(promptType);
+                const stmt = db.prepare("SELECT * FROM prompt_configurations WHERE id = ?");
+                row = stmt.get(id);
             }
             if (!row)
                 return null;

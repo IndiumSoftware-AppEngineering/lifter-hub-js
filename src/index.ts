@@ -2,8 +2,8 @@ export type { DBConfig } from "./db";
 import { configureDatabase, PromptConfiguration, fetchPrompt, fetchAllPrompt, createPrompt, updatePrompt, updateFullPrompt, deletePrompt, deleteAllPrompt, DBConfig } from "./db";
 
 class LifterHub {
-    async pull(promptType: string): Promise<PromptConfiguration | null> {
-        return await fetchPrompt(promptType);
+    async pull(id: number): Promise<PromptConfiguration | null> {
+        return await fetchPrompt(id);
     }
 
     async pullAll(): Promise<PromptConfiguration[]> {

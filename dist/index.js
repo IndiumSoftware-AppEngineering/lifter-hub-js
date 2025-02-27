@@ -12,9 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.init = init;
 const db_1 = require("./db");
 class LifterHub {
-    pull(promptType) {
+    pull(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield (0, db_1.fetchPrompt)(promptType);
+            return yield (0, db_1.fetchPrompt)(id);
         });
     }
     pullAll() {

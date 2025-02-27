@@ -21,7 +21,7 @@ export type PromptConfiguration = {
     output_format?: string;
 };
 export declare function configureDatabase(config: DBConfig): Promise<void>;
-export declare function fetchPrompt(promptType: string): Promise<PromptConfiguration | null>;
+export declare function fetchPrompt(id: number): Promise<PromptConfiguration | null>;
 export declare function fetchAllPrompt(): Promise<PromptConfiguration[]>;
 export declare function createPrompt(config: PromptConfiguration): Promise<boolean>;
 export declare function updatePrompt(promptType: string, newDescription: string): Promise<boolean>;

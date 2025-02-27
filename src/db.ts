@@ -50,18 +50,18 @@ export async function configureDatabase(config: DBConfig) {
     await initializeDatabase();
 }
 
-export async function fetchPrompt(promptType: string): Promise<PromptConfiguration | null> {
+export async function fetchPrompt(id: number): Promise<PromptConfiguration | null> {
     try {
         let row;
         if (dbType === "postgres") {
             const result = await db.query(
-                "SELECT * FROM prompt_configurations WHERE prompt_type = $1",
-                [promptType]
+                "SELECT * FROM prompt_configurations WHERE id = $1",
+                [id]
             );
             row = result.rows[0];
         } else {
-            const stmt = db.prepare("SELECT * FROM prompt_configurations WHERE prompt_type = ?");
-            row = stmt.get(promptType);
+            const stmt = db.prepare("SELECT * FROM prompt_configurations WHERE id = ?");
+            row = stmt.get(id);
         }
         if (!row) return null;
 
