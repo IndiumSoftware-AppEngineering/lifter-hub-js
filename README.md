@@ -1,14 +1,7 @@
-# lifter-hub-js
-
-# Build
-```
-npm run build
-```
-
-# Install the package
+# Install the package lifter-hub-js
 
 ```
-npm install git+https://github.com/IndiumSoftware-AppEngineering/lifter-hub-js.git
+npm install lifter-hub-js
 ```
 
 # Use the package
@@ -36,16 +29,36 @@ export default function Home() {
         });
 
         // Fetch a prompt
-        hub.pull("prompt_name").then(setPrompt);
-
+        const prompt = await hub.pull(id);
         // Example of CRUD operations
-        hub.create("prompt_name", "Prompt");
-        hub.update("prompt_name", "New Prompt");
-        hub.delete("prompt_name");
+        await hub.create({
+        prompt_type: "string",
+        description: "string",
+        system_message: "string",
+        human_message: "string",
+        structured_output: true, 
+        output_format: "string", 
+        });
+        // Example of update 
+        const updatedPrompt = await hub.updateFull({
+        id: number,
+        prompt_type: "string",
+        description: "string",
+        system_message: "string",
+        human_message: "string",
+        structured_output: true,
+        output_format: "string",
+        });
+        // Example of delete
+        hub.delete("id");
     }, []);
 
     return <div>{prompt || "Loading..."}</div>;
 }
 
+
+License
+
+This project is licensed under the MIT License.
 
 ```
